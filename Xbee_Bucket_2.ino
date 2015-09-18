@@ -28,11 +28,11 @@ void close_valve();
 //this function opens the valve, waits until the bucket is empty and then closes the valve
 void open_empty_close();
 //this fuction sets the color of the led based on the color value that is passes on to it
-void set_color(uint8_t R, uint8_t G, uint8_t B, uint16_t delaymili);
-void set_color(uint8_t color);
+//void set_color(uint8_t R, uint8_t G, uint8_t B, uint16_t delaymili);
+//void set_color(uint8_t color);
 //this function sends the load cell data to the coordinator
 void send_data();
-void send_simulated_data();
+//void send_simulated_data();
 //this function checks the state of the valve and sends it to the xbee
 void send_valve_state();
 
@@ -103,15 +103,15 @@ void setup() {
     digitalWrite(bluePin, LOW);
 
 	NAU7802_setup();//-------------------------------------------------------------
-    set_color(10, 0, 0, 50);
-    set_color(0, 10, 0, 50);
-    set_color(0, 0, 10, 50);
+    //set_color(10, 0, 0, 50);
+    //set_color(0, 10, 0, 50);
+    //set_color(0, 0, 10, 50);
 
 }
 
 void loop() {
 	
-    set_color(1, 0, 1, 50);
+    //set_color(1, 0, 1, 50);
      //wait for an instruction from the coordinator
     xbee.readPacket();
 
@@ -124,8 +124,8 @@ void loop() {
             //now fill our zb rx class
             xbee.getResponse().getZBRxResponse(rx);
 
-            set_color(0, 10, 0, 20); //flash green to show that we received a ZB_RX_RESPONSE packet
-            set_color(0, 10, 0, 20);
+            //set_color(0, 10, 0, 20); //flash green to show that we received a ZB_RX_RESPONSE packet
+            //set_color(0, 10, 0, 20);
 
             if (rx.getOption() == ZB_PACKET_ACKNOWLEDGED)
             {
@@ -142,13 +142,13 @@ void loop() {
             uint8_t data = rx.getData()[0];
             if (data == 'o'){ open_valve(); }
             else if (data == 'c'){ close_valve(); }
-            else if (data == 'p'){ open_empty_close(); }
+            else if (data == 'p'){ /*open_empty_close();*/ }
             else if (data == 'v'){ send_valve_state(); }
             else if (data == 's'){ send_data();/* send_simulated_data();/* send_data();*/ }
             else if (data == 'n')
-            { 
+            { /*
                 set_color(int(rx.getData()[1] - '0')); 
-                delay(1000); 
+                delay(1000); */
             }
             else{/* none of the options apeared to be in the first byte, this must be an error*/ }
         }
@@ -160,14 +160,14 @@ void loop() {
             if (msr.getStatus() == ASSOCIATED)
             {
                 //yay this is great!
-                set_color(0, 20, 0, 100);
-                set_color(0, 20, 0, 100);
+                //set_color(0, 20, 0, 100);
+                //set_color(0, 20, 0, 100);
             }
             else if (msr.getStatus()==DISASSOCIATED)
             {
                 //this is not good
-                set_color(20, 0, 0, 100);
-                set_color(20, 0, 0, 100);
+                //set_color(20, 0, 0, 100);
+                //set_color(20, 0, 0, 100);
             }
             else
             {
@@ -181,8 +181,8 @@ void loop() {
     }
     else if (xbee.getResponse().isError())
     {
-        set_color(250, 0, 250, 100);
-        set_color(250, 0, 250, 100);
+        //set_color(250, 0, 250, 100);
+        //set_color(250, 0, 250, 100);
         //Error Reading packet
         // the error code can be retrived using xbee.getResponse().getErrorCode();
     }
@@ -191,7 +191,7 @@ void loop() {
 
 void NAU7802_setup()
 {
-    set_color(0, 0, 255, 100); //flash blue once to show the start of the calibration
+    //set_color(0, 0, 255, 100); //flash blue once to show the start of the calibration
 
     Wire.beginTransmission(0x2A);     // Reset all the registers by writing 1 to the RR bit of REG00(0)
 	Wire.write(0x00);
@@ -259,8 +259,8 @@ void NAU7802_setup()
     */
 	delay(1000);
 
-    set_color(0, 0, 255, 100); //flash blue twice to show the end of the calibration
-    set_color(0, 0, 255, 100);
+    //set_color(0, 0, 255, 100); //flash blue twice to show the end of the calibration
+    //set_color(0, 0, 255, 100);
 }
 
 uint16_t adc_read()
@@ -302,7 +302,8 @@ void open_valve()
 	while (digitalRead(valveOpen))
 	{
 		//wait while valveOpen pin is HIGH which mean the valve is not fully open
-        set_color(0, 0, 5, 100);
+        //set_color(0, 0, 5, 100);
+        delay(100);
 	}
 	digitalWrite(valveOut1, LOW);
 	digitalWrite(valveOut2, LOW);
@@ -317,7 +318,8 @@ void close_valve()
 	while (digitalRead(valveClose))
 	{
 		//wait while valveClose pin is HIGH which mean the valve is not fully closed
-        set_color(5, 0, 0, 100);
+        //set_color(5, 0, 0, 100);
+        delay(100);
 	}
 	digitalWrite(valveOut1, LOW);
 	digitalWrite(valveOut2, LOW);
@@ -334,101 +336,102 @@ void send_valve_state()
     xbee.send(zbTx);
 
     // flash TX indicator
-    set_color(200, 0, 200, 100);
+    //set_color(200, 0, 200, 100);
 }
 
 //this function opens the valve, waits until the bucket is empty and then closes the valve
-void open_empty_close()
-{
-	//open the valve-----------------------------------
-	digitalWrite(valveOut1, HIGH);
-	digitalWrite(valveOut2, LOW);
-	while (valveOpen)
-	{
-		//wait while valveOpen pin is HIGH which mean the valve is not fully open
-	}
-	digitalWrite(valveOut1, LOW);
-	digitalWrite(valveOut2, LOW);
-	//-------------------------------------------------
-	
-	//read the data from load cell (NAU7802) and stay open until all the water is emptied----
-	//--------------------------------------------------
-	int weight = adc_read();
-	int oldWeight = 0;
-	while (abs(weight - oldWeight) > minWeight)
-	{
-		//weight until the new reading is within the minWeight of the old reading
-		delay(1000);
-		oldWeight = weight;
-		weight = adc_read();
-	}
-	digitalWrite(valveOut1, LOW);
-	digitalWrite(valveOut2, HIGH);
-	//---------------------------------------------------
-	
-	//close the valve------------------------------------
-	while (valveClose)
-	{
-		//wait while valveClose pin is HIGH which mean the valve is not fully closed
-	}
-	digitalWrite(valveOut1, LOW);
-	digitalWrite(valveOut2, LOW);
-	//--------------------------------------------------
-}
+//void open_empty_close()
+//{
+//	//open the valve-----------------------------------
+//	digitalWrite(valveOut1, HIGH);
+//	digitalWrite(valveOut2, LOW);
+//	while (valveOpen)
+//	{
+//		//wait while valveOpen pin is HIGH which mean the valve is not fully open
+//	}
+//	digitalWrite(valveOut1, LOW);
+//	digitalWrite(valveOut2, LOW);
+//	//-------------------------------------------------
+//	
+//	//read the data from load cell (NAU7802) and stay open until all the water is emptied----
+//	//--------------------------------------------------
+//	int weight = adc_read();
+//	int oldWeight = 0;
+//	while (abs(weight - oldWeight) > minWeight)
+//	{
+//		//weight until the new reading is within the minWeight of the old reading
+//		delay(1000);
+//		oldWeight = weight;
+//		weight = adc_read();
+//	}
+//	digitalWrite(valveOut1, LOW);
+//	digitalWrite(valveOut2, HIGH);
+//	//---------------------------------------------------
+//	
+//	//close the valve------------------------------------
+//	while (valveClose)
+//	{
+//		//wait while valveClose pin is HIGH which mean the valve is not fully closed
+//	}
+//	digitalWrite(valveOut1, LOW);
+//	digitalWrite(valveOut2, LOW);
+//	//--------------------------------------------------
+//}
 
 //this fuction sets the color of the led based on the color value that is passes on to it
 //if delaymili is set to zero, it sets the color and exits, 
 //if delaymili is anyother number, it turns the led on for delaymili miliseconds and then turns it off
-void set_color(uint8_t R, uint8_t G, uint8_t B, uint16_t delaymili)
-{
-    if (delaymili == 0)
-    {
-        analogWrite(redPin, R);
-        analogWrite(greenPin, G);
-        analogWrite(bluePin, B);
-    }
-    else
-    {
-        analogWrite(redPin, R);
-        analogWrite(greenPin, G);
-        analogWrite(bluePin, B);
-        delay(delaymili);
-        analogWrite(redPin, 0);
-        analogWrite(greenPin, 0);
-        analogWrite(bluePin, 0);
-        delay(delaymili);
-    }
-}
-void set_color(int color)
-{
-    /*
-    0 - red
-    1 - yellow
-    2 - light green
-    3 - dark green
-    4 - blue
-    */
-    switch (color)
-    {
-    case 0:
-        set_color(10,0,0,0);
-        break;
-    case 1:
-        set_color(10, 10, 0, 0);
-        break;
-    case 2:
-        set_color(0, 10, 10, 0);
-        break;
-    case 3:
-        set_color(5, 5, 5, 0);
-        break;
-    case 4:
-        set_color(10,0,10,0);
-        break;
-    default:
-        set_color(0,0,5,0);
-    }
-}
+//void set_color(uint8_t R, uint8_t G, uint8_t B, uint16_t delaymili)
+//{
+//    if (delaymili == 0)
+//    {
+//        analogWrite(redPin, R);
+//        analogWrite(greenPin, G);
+//        analogWrite(bluePin, B);
+//    }
+//    else
+//    {
+//        analogWrite(redPin, R);
+//        analogWrite(greenPin, G);
+//        analogWrite(bluePin, B);
+//        delay(delaymili);
+//        analogWrite(redPin, 0);
+//        analogWrite(greenPin, 0);
+//        analogWrite(bluePin, 0);
+//        delay(delaymili);
+//    }
+//}
+
+//void set_color(int color)
+//{
+//    /*
+//    0 - red
+//    1 - yellow
+//    2 - light green
+//    3 - dark green
+//    4 - blue
+//    */
+//    switch (color)
+//    {
+//    case 0:
+//        set_color(10,0,0,0);
+//        break;
+//    case 1:
+//        set_color(10, 10, 0, 0);
+//        break;
+//    case 2:
+//        set_color(0, 10, 10, 0);
+//        break;
+//    case 3:
+//        set_color(5, 5, 5, 0);
+//        break;
+//    case 4:
+//        set_color(10,0,10,0);
+//        break;
+//    default:
+//        set_color(0,0,5,0);
+//    }
+//}
 
 //this function will send the load cell data to the coordinator
 void send_data()
@@ -439,7 +442,7 @@ void send_data()
     xbee.send(zbTx);
 
     // flash TX indicator
-    set_color(200, 0, 200, 100);
+    //set_color(200, 0, 200, 100);
 
     // after sending a tx request, we expect a status response
     // wait up to half second for the status response
@@ -465,40 +468,40 @@ void send_data()
       }
 }
 
-void send_simulated_data()
-{
-    data[0] = int(random(0, 255));
-    data[1] = int(random(0, 255));
-    xbee.send(zbTx);
-
-    // flash TX indicator
-    set_color(200, 0, 200, 100);
-
-    // after sending a tx request, we expect a status response
-    // wait up to half second for the status response
-    /*
-    if (xbee.readPacket(500)) {
-        // got a response!
-
-        // should be a znet tx status            	
-        if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
-            xbee.getResponse().getZBTxStatusResponse(txStatus);
-
-            // get the delivery status, the fifth byte
-            if (txStatus.getDeliveryStatus() == SUCCESS) {
-                // success.  time to celebrate
-            }
-            else {
-                // the remote XBee did not receive our packet. is it powered on?
-            }
-        }
-    }
-    else if (xbee.getResponse().isError()) {
-        //nss.print("Error reading packet.  Error code: ");  
-        //nss.println(xbee.getResponse().getErrorCode());
-    }
-    else {
-        // local XBee did not provide a timely TX Status Response -- should not happen
-    }
-    */
-}
+//void send_simulated_data()
+//{
+//    data[0] = int(random(0, 255));
+//    data[1] = int(random(0, 255));
+//    xbee.send(zbTx);
+//
+//    // flash TX indicator
+//    //set_color(200, 0, 200, 100);
+//
+//    // after sending a tx request, we expect a status response
+//    // wait up to half second for the status response
+//    /*
+//    if (xbee.readPacket(500)) {
+//        // got a response!
+//
+//        // should be a znet tx status            	
+//        if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
+//            xbee.getResponse().getZBTxStatusResponse(txStatus);
+//
+//            // get the delivery status, the fifth byte
+//            if (txStatus.getDeliveryStatus() == SUCCESS) {
+//                // success.  time to celebrate
+//            }
+//            else {
+//                // the remote XBee did not receive our packet. is it powered on?
+//            }
+//        }
+//    }
+//    else if (xbee.getResponse().isError()) {
+//        //nss.print("Error reading packet.  Error code: ");  
+//        //nss.println(xbee.getResponse().getErrorCode());
+//    }
+//    else {
+//        // local XBee did not provide a timely TX Status Response -- should not happen
+//    }
+//    */
+//}
