@@ -59,6 +59,7 @@ uint16_t minWeight = 100;
 
 
 uint8_t data[] = {0x48, 0x49};
+uint16_t adc[20];
 
 //union u_tag {
 //    uint8_t b[2];
@@ -436,6 +437,24 @@ void send_valve_state()
 //this function will send the load cell data to the coordinator
 void send_data()
 {
+    for (uint8_t i = 0; i < 20; i++)
+    {
+        adc_read();
+        data[1] = adc_high;
+        data[0] = adc_mid;
+        adc[i] = (adc_high << 8) + adc_mid;
+    }
+
+    qsort();
+    uint16_t sum;
+    for (uint8_t i = 5; i < 15; i++)
+    {
+        sum += adc[i];
+    }
+    
+    sum /= 10.0;
+
+
     adc_read();
     data[1] = adc_high;
     data[0] = adc_mid;
