@@ -445,17 +445,18 @@ void send_data()
     {
         adc_read();
         adcVec[i] = (adc_high << 8) + adc_mid;
+		delay(10);
     }
 
-	for (int x = 0; x<numread; x++)
+	for (uint8_t x = 0; x<numread; x++)
 	{
 		bool done = true;
-		for (int y = 0; y<numread - 1; y++)
+		for (uint8_t y = 0; y<numread - 1; y++)
 		{
 			if (adcVec[y]>adcVec[y + 1])
 			{
 				done = false;
-				int temp = adcVec[y + 1];
+				uint16_t temp = adcVec[y + 1];
 				adcVec[y + 1] = adcVec[y];
 				adcVec[y] = temp;
 			}
