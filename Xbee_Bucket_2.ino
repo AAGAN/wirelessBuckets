@@ -472,7 +472,7 @@ void send_data()
     sum /= (numread-2.0*outlier);
 
     data[1] = sum >> 8;
-    data[0] = adc_mid & 0b11111111;
+    data[0] = sum & 0b11111111;
     xbee.send(zbTx);
 
     // flash TX indicator
