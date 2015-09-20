@@ -463,7 +463,7 @@ void send_data()
 		if (done) break;
 	}
 
-    uint16_t sum;
+    uint32_t sum = 0L;
 	for (uint8_t i = outlier; i < numread - outlier; i++)
     {
         sum += adcVec[i];
