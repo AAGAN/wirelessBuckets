@@ -59,7 +59,11 @@ uint16_t minWeight = 100;
 
 
 uint8_t data[] = {0x48, 0x49};
-uint16_t adc[20];
+uint16_t adcVec[20];
+//number of readings from the loadcell
+uint8_t numread = 20;
+//number of outliers to throw away from each end
+uint8_t outlier = 5;
 
 //union u_tag {
 //    uint8_t b[2];
@@ -437,27 +441,38 @@ void send_valve_state()
 //this function will send the load cell data to the coordinator
 void send_data()
 {
-    for (uint8_t i = 0; i < 20; i++)
+    for (uint8_t i = 0; i < numread; i++)
     {
         adc_read();
-        data[1] = adc_high;
-        data[0] = adc_mid;
-        adc[i] = (adc_high << 8) + adc_mid;
+        adcVec[i] = (adc_high << 8) + adc_mid;
     }
 
-    qsort();
+	for (int x = 0; x<numread; x++)
+	{
+		bool done = true;
+		for (int y = 0; y<numread - 1; y++)
+		{
+			if (adcVec[y]>adcVec[y + 1])
+			{
+				done = false;
+				int temp = adcVec[y + 1];
+				adcVec[y + 1] = adcVec[y];
+				adcVec[y] = temp;
+			}
+		}
+		if (done) break;
+	}
+
     uint16_t sum;
-    for (uint8_t i = 5; i < 15; i++)
+	for (uint8_t i = outlier; i < numread - outlier; i++)
     {
-        sum += adc[i];
+        sum += adcVec[i];
     }
     
-    sum /= 10.0;
+    sum /= (numread-2.0*outlier);
 
-
-    adc_read();
-    data[1] = adc_high;
-    data[0] = adc_mid;
+    data[1] = sum >> 8;
+    data[0] = adc_mid & 0b11111111;
     xbee.send(zbTx);
 
     // flash TX indicator
