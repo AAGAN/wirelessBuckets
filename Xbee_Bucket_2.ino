@@ -444,8 +444,8 @@ void send_data()
     for (uint8_t i = 0; i < numread; i++)
     {
         adc_read();
-        adcVec[i] = (adc_high << 8) + adc_mid;
-		delay(10);
+        adcVec[i] = adc; // (adc_high << 8) + adc_mid;
+		delay(20);
     }
 
 	for (uint8_t x = 0; x<numread; x++)
